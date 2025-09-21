@@ -36,4 +36,12 @@ export class UrlService {
     
     return this.http.get<ApiResponse<PaginatedResponse<UrlAnalytics>>>(`${this.baseUrl}/urls/list`, { params });
   }
+
+  /**
+   * Get analytics for a specific URL alias
+   */
+  getUrlAnalytics(alias: string): Observable<ApiResponse<UrlAnalytics>> {
+    return this.http.get<ApiResponse<UrlAnalytics>>(`${this.baseUrl}/urls/analytics`, { params: new HttpParams().set('shortCode', alias) });
+  }
+  
 }

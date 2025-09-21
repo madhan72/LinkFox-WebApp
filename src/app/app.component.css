@@ -1,0 +1,39 @@
+.app-toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.app-logo {
+  height: 52px;
+  margin-left: 0;
+  position: absolute;
+  left: 16px;  
+}
+.app-title {
+  margin: 0 auto;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 425px) {
+
+    .app-toolbar {
+    min-height: 48px;
+    padding-left: 44px; /* logo width (36px) + 8px spacing */
+  }
+
+  .app-logo {
+    height: 40px;
+    left: 8px;
+  }
+  .app-title {
+    font-size: 1rem !important;
+    padding-left: 24px; /* Prevent overlap with logo */
+    padding-right: 8px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

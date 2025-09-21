@@ -12,9 +12,11 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 
 import { UrlService } from '../../services/url.service';
 import { UrlRequest, UrlAnalytics } from '../../models/url.model';
+import { AnalyticsModalComponent } from '../analytics-modal/analytics-modal.component';
 
 @Component({
   selector: 'app-url-shortener',
@@ -32,7 +34,8 @@ import { UrlRequest, UrlAnalytics } from '../../models/url.model';
     MatSnackBarModule,
     MatIconModule,
     MatToolbarModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule
   ],
   templateUrl: './url-shortener.component.html',
   styleUrls: ['./url-shortener.component.css']
@@ -47,7 +50,7 @@ export class UrlShortenerComponent implements OnInit {
   shortUrl = '';
   
   // Table configuration
-  displayedColumns: string[] = ['sno', 'alias', 'shortUrl', 'clickCount'];
+  displayedColumns: string[] = ['sno', 'alias', 'shortUrl', 'clickCount','actions'];
   dataSource = new MatTableDataSource<UrlAnalytics>([]);
   totalCount = 0;
   pageSize = 5;
@@ -57,7 +60,8 @@ export class UrlShortenerComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private urlService: UrlService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.urlForm = this.fb.group({
       longUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
@@ -172,4 +176,33 @@ export class UrlShortenerComponent implements OnInit {
   get aliasControl() {
     return this.urlForm.get('alias');
   }
+
+  openAnalyticsModal(element: UrlAnalytics): void {
+    // Fetch detailed analytics 
+    this.urlService.getUrlAnalytics(element.shortCode).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+            // Open modal with response.data
+            const dialogRef = this.dialog.open(AnalyticsModalComponent, {
+            width: '800px',
+            maxWidth: '95vw',
+            data: {
+              alias: element.shortCode,
+              shortUrl: element.shortUrl,
+              clickCount: element.clickCount,
+              analyticsDetails: response.data.clicks
+            }
+          });
+
+        } else {
+          this.showSnackBar(response.message || 'Failed to load analytics', 'error');
+        }
+      },
+      error: (error) => {
+        this.showSnackBar('Error occurred while loading analytics', 'error');
+        console.error('Error:', error);
+      }
+    });  
+  }
+
 }

@@ -1,0 +1,94 @@
+<div class="analytics-modal">
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2 mat-dialog-title class="modal-title">
+      <mat-icon class="title-icon">analytics</mat-icon>
+      Analytics Details
+    </h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- URL Information Card -->
+  <mat-card class="url-info-card">
+    <mat-card-content>
+      <div class="url-info">
+        <div class="info-item">
+          <span class="label">ShortCode:</span>
+          <span class="value">{{ data.alias }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Short URL:</span>
+          <a [href]="data.shortUrl" target="_blank" class="short-url-link">
+            {{ data.shortUrl }}
+          </a>
+        </div>
+        <div class="info-item">
+          <span class="label">Total Clicks:</span>
+          <span class="value click-count">{{ data.clickCount }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-divider></mat-divider>
+
+  <!-- Analytics Table -->
+  <div class="analytics-content">
+    <h3 class="section-title">Click Details</h3>
+    
+    <div class="table-container">
+      <table mat-table [dataSource]="data.analyticsDetails" class="analytics-table">
+        <!-- Clicked At Column -->
+        <ng-container matColumnDef="clickedAt">
+          <th mat-header-cell *matHeaderCellDef>Date & Time</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.clickedAt | date:'medium' }}
+          </td>
+        </ng-container>
+
+        <!-- IP Address Column -->
+        <ng-container matColumnDef="ipAddress">
+          <th mat-header-cell *matHeaderCellDef>IP Address</th>
+          <td mat-cell *matCellDef="let element">{{ element.ipAddress }}</td>
+        </ng-container>
+
+        <!-- Browser User Agent Column -->
+        <ng-container matColumnDef="browserUserAgent">
+          <th mat-header-cell *matHeaderCellDef>Browser User Agent</th>
+          <td mat-cell *matCellDef="let element" class="user-agent-cell">
+            <span [title]="element.userAgent">{{ element.userAgent }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Location Column -->
+        <ng-container matColumnDef="location">
+          <th mat-header-cell *matHeaderCellDef>Location</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="location-info">
+              <mat-icon class="location-icon">location_on</mat-icon>
+              {{ element.location || 'Unknown' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- No Data Message -->
+      <div *ngIf="data.analyticsDetails.length === 0" class="no-data">
+        <mat-icon>analytics</mat-icon>
+        <p>No analytics data available</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Actions -->
+  <div class="modal-actions">
+    <button mat-raised-button color="primary" (click)="onClose()">
+      Close
+    </button>
+  </div>
+</div>

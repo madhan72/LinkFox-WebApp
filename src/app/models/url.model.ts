@@ -15,12 +15,13 @@ export interface UrlResponse {
 
 export interface UrlAnalytics {
   sno: number;
-  alias: string;
+  shortCode: string;
   shortUrl: string;
   clickCount: number;
   ipAddress: string;
   browserUserAgent: string;
   createdAt?: Date;
+  clicks?: AnalyticsDetail[];
 }
 
 export interface PaginatedResponse<T> {
@@ -36,4 +37,12 @@ export interface ApiResponse<T> {
   message: string;
   data?: T;
   errors?: string[];
+}
+
+export interface AnalyticsDetail {
+  id: number;
+  ipAddress: string;
+  browserUserAgent: string;
+  clickedAt: Date;
+  location?: string;
 }
