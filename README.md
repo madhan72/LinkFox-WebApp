@@ -387,7 +387,7 @@ The project is configured to work with popular code formatters like Prettier.
 
 To integrate with your .NET Core backend:
 
-1. Update the `baseUrl` in `src/app/services/url.service.ts`
+1. Update the `baseUrl` in `src/environments/environment.ts`
 2. Replace mock implementations with actual HTTP calls
 3. Ensure CORS is configured on your backend
 4. Update the API response models if needed
