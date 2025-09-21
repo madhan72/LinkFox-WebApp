@@ -1,0 +1,192 @@
+<div class="url-shortener-container">
+  <!-- Header -->
+  <mat-toolbar color="primary" class="app-toolbar">
+    <!-- Logo placeholder -->
+    <img src="assets/logo.png" alt="Logo" class="app-logo" style="height:52px; margin-right:122px;">
+    <span class="app-title" style="margin-right:auto;">URL Shortening Service</span>
+  </mat-toolbar>
+
+  <!-- Main Content -->
+  <div class="content-wrapper">
+    <!-- URL Shortening Form -->
+    <mat-card class="shortener-card">
+      <mat-card-content>
+        <form [formGroup]="urlForm" (ngSubmit)="onShortenUrl()" class="shortener-form">
+          <!-- Long URL Input -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Enter Long URL:</mat-label>
+            <input 
+              matInput 
+              formControlName="longUrl" 
+              placeholder="https://example.com/very-long-url"
+              type="url">
+            <mat-error *ngIf="longUrlControl?.hasError('required') && longUrlControl?.touched">
+              URL is required
+            </mat-error>
+            <mat-error *ngIf="longUrlControl?.hasError('pattern') && longUrlControl?.touched">
+              Please enter a valid URL starting with http:// or https://
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Custom Alias Input -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Custom Alias (Optional):</mat-label>
+            <input 
+              matInput 
+              formControlName="alias" 
+              placeholder="my-custom-alias"
+              maxlength="50">
+            <mat-hint>Leave empty for auto-generated alias</mat-hint>
+            <mat-error *ngIf="aliasControl?.hasError('pattern') && aliasControl?.touched">
+              Alias can only contain letters, numbers, hyphens, and underscores
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Submit Button -->
+          <div class="button-container">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="isLoading"
+              class="shorten-button">
+              <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
+              <mat-icon *ngIf="!isLoading">link</mat-icon>
+              {{ isLoading ? 'Shortening...' : 'Shorten URL' }}
+            </button>
+          </div>
+        </form>
+
+        <!-- Short URL Result -->
+        <div *ngIf="shortUrl" class="result-section">
+          <mat-divider></mat-divider>
+          <h3>Short URL:</h3>
+          <div class="short-url-container">
+            <mat-form-field appearance="outline" class="short-url-field">
+              <input matInput [value]="shortUrl" readonly>
+            </mat-form-field>
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="copyToClipboard(shortUrl)"
+              matTooltip="Copy to clipboard"
+              class="copy-icon-button">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Past URLs Section -->
+    <mat-card class="past-urls-card">
+      <mat-card-header>
+        <mat-card-title>Past URLs</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Search Bar -->
+        <form [formGroup]="searchForm" class="search-form">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search</mat-label>
+            <input
+              matInput
+              formControlName="searchTerm"
+              placeholder="Search by alias or URL"
+              (keyup.enter)="onSearch()">
+          </mat-form-field>
+          <button
+            mat-raised-button
+            color="accent"
+            type="button"
+            (click)="onSearch()"
+            class="search-button">
+            <mat-icon>search</mat-icon>
+            <span>Search</span>
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="onClearSearch()"
+            class="clear-button">
+            Clear
+          </button>
+        </form>
+
+        <!-- Loading Spinner -->
+        <div *ngIf="isTableLoading" class="loading-container">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+
+
+        <!-- Paginator -->
+        <mat-paginator 
+          *ngIf="!isTableLoading && dataSource.data.length > 0"
+          [length]="totalCount"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizeOptions"
+          [pageIndex]="pageNumber - 1"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+        
+        <!-- Data Table -->
+        <div *ngIf="!isTableLoading" class="table-container">
+          <table mat-table [dataSource]="dataSource" class="urls-table">
+            <!-- Serial Number Column -->
+            <ng-container matColumnDef="sno">
+              <th mat-header-cell *matHeaderCellDef>S.no</th>
+              <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+            </ng-container>
+
+            <!-- Alias Column -->
+            <ng-container matColumnDef="alias">
+              <th mat-header-cell *matHeaderCellDef>Alias</th>
+              <td mat-cell *matCellDef="let element">{{ element.shortCode }}</td>
+            </ng-container>
+
+            <!-- Short URL Column -->
+            <ng-container matColumnDef="shortUrl">
+              <th mat-header-cell *matHeaderCellDef>Short URL</th>
+              <td mat-cell *matCellDef="let element" class="short-url-cell">
+                <a [href]="element.shortUrl" target="_blank" class="short-url-link">
+                  {{ element.shortUrl }}
+                </a>
+              </td>
+            </ng-container>
+
+            <!-- Click Count Column -->
+            <ng-container matColumnDef="clickCount">
+              <th mat-header-cell *matHeaderCellDef>No of Clicks</th>
+              <td mat-cell *matCellDef="let element">{{ element.clickCount }}</td>
+            </ng-container>
+
+            <!-- IP Address Column -->
+            <ng-container matColumnDef="ipAddress">
+              <th mat-header-cell *matHeaderCellDef>IP Address</th>
+              <td mat-cell *matCellDef="let element">{{ element.ipAddress }}</td>
+            </ng-container>
+
+            <!-- Browser User Agent Column -->
+            <ng-container matColumnDef="browserUserAgent">
+              <th mat-header-cell *matHeaderCellDef>Browser User Agent</th>
+              <td mat-cell *matCellDef="let element" class="user-agent-cell">
+                <span [title]="element.browserUserAgent">{{ element.browserUserAgent }}</span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <!-- No Data Message -->
+          <div *ngIf="dataSource.data.length === 0" class="no-data">
+            <mat-icon>link_off</mat-icon>
+            <p>No URLs found</p>
+          </div>
+        </div>
+
+        
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
