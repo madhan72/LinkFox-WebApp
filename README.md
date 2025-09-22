@@ -242,6 +242,7 @@ npm start
 - View click counts, IP addresses, and browser information
 - Use the search functionality to find specific URLs
 - Navigate through pages using the pagination controls
+- View Analytics click to detail view of analytics
 
 ## API Integration
 
@@ -253,40 +254,6 @@ The API base URL is configured in the environment files:
 
 - **Development**: `http://localhost:8080/api/v1` (see `src/environments/environment.ts`)
 - **Production**: Update `src/environments/environment.prod.ts` with your production API URL
-
-### Backend Endpoints Expected
-
-- `POST /api/v1/urls/shorten` - Create a shortened URL
-- `GET /api/v1/urls` - Get paginated list of URLs with analytics
-- `GET /api/v1/urls/{alias}/redirect` - Redirect to original URL
-
-### Sample API Request/Response
-
-**Shorten URL Request:**
-
-```json
-{
-  "longUrl": "https://example.com/very-long-url",
-  "alias": "custom-alias"
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "message": "URL shortened successfully",
-  "data": {
-    "id": 1,
-    "longUrl": "https://example.com/very-long-url",
-    "shortUrl": "http://short.url/custom-alias",
-    "alias": "custom-alias",
-    "clickCount": 0,
-    "createdAt": "2024-01-15T10:30:00Z",
-    "updatedAt": "2024-01-15T10:30:00Z"
-  }
-}
 ```
 
 ## Features in Detail
@@ -350,32 +317,6 @@ The build artifacts will be stored in the `dist/` directory.
 npm run build -- --configuration production
 ```
 
-### Running Tests
-
-```bash
-# Run unit tests
-npm test
-
-# Run tests in watch mode
-npm run test -- --watch
-
-# Run tests with coverage
-npm run test -- --code-coverage
-```
-
-### Code Quality
-
-The project follows Angular style guidelines and uses TypeScript strict mode.
-
-**Linting**:
-
-```bash
-ng lint
-```
-
-**Code Formatting**:
-The project is configured to work with popular code formatters like Prettier.
-
 ## Browser Support
 
 - Chrome (latest)
@@ -392,14 +333,3 @@ To integrate with your .NET Core backend:
 3. Ensure CORS is configured on your backend
 4. Update the API response models if needed
 
-## Deployment
-
-The application can be deployed to any static hosting service:
-
-- Netlify
-- Vercel
-- GitHub Pages
-- AWS S3
-- Azure Static Web Apps
-
-Build the application for production and upload the `dist/` folder contents.
